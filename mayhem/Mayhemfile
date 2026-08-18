@@ -1,0 +1,16 @@
+project: savantenvs/pforth
+target: pforth
+
+cmds:
+  - cmd: /mayhem/pforth_fuzzer
+    libfuzzer: true
+    # Per-exec timeout in seconds, owned by Mayhem: the harness has no timer or watchdog, and
+    # pForth's inner interpreter has no step limit, so a fuzzed `: L BEGIN AGAIN ; L` is a hang
+    # finding bounded here. Generous on purpose: no non-crashing server-side corpus input takes
+    # over 10 ms, but legitimate finite work does not have to be short (a 50M-iteration
+    # DO...LOOP takes ~3 s under ASan+UBSan on a dev box), and training hosts can be much slower.
+    timeout: 10
+
+testsuite:
+  - https://$MAYHEM_DOMAIN/$MAYHEM_PROJECT/$MAYHEM_TARGET/testsuite.tar
+  - file://mayhem/pforth/testsuite

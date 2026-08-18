@@ -1,0 +1,432 @@
+# mayhem/oracle/expected.txt -- the right answers for mayhem/test.sh (pForth never reads this file).
+#
+# T <script> <seq> <tier> <n> <v1> .. <vn>
+#     Assertion <seq> of <script> (numbered in order by T{) must leave exactly n results, top of
+#     stack first, equal to v1..vn (compared as signed decimal strings). Every assertion is
+#     checked on the test binary, and <tier> says which graded-flags binary must ALSO give the
+#     right answer: G: the graded binary /mayhem/pforth_fuzzer; W: the twin
+#     mayhem/out/pforth_fuzzer_twin (graded compile line plus -fsanitize-recover=undefined; for
+#     the wrap-around tests that overflow); F: none (file I/O, INCLUDE, SOURCE-ID, the multi-line
+#     locals list).
+# S <modes> <script> <first> <last> <next>
+#     The graded (G) and/or twin (W) run leaves out lines <first>..<last> of <script>, then sets
+#     the assertion number to <next> so the numbers match file mode.
+# D <script> <seq> <text>
+#     The assertion also needs <text> in that script's test-binary output.
+# O <script> <word>  and  X <script> <line> <words>
+#     Rules for mayhem/oracle/strip.awk, which removes the expected half of every assertion
+#     before pForth reads a script. O: <word> also starts an expected half (t_file.fth defines
+#     "-> }T{"). X: <words> are added to the end of the code half of the assertion whose expected
+#     half starts on <line>. The X rules below are the ten t_strings assertions whose result is
+#     the address of a string (it changes from run to run): the added words subtract the start
+#     address of the string searched (STR1, STR2, STR3, STR-SEARCH), so the result is an offset.
+#     Upstream's expected halves for them (STR1 DROP 5; STR2; STR3; STR2 DROP 6 CHARS + ...;
+#     STR-SEARCH TRUE; STR-SEARCH 4 - SWAP 4 CHARS + SWAP TRUE; STR-SEARCH DROP 8 CHARS + 4 TRUE;
+#     STR-SEARCH TRUE; STR-SEARCH FALSE twice) give the offsets 0 0 0 6 0 4 8 0 0 0 used below.
+#
+# Made from upstream e561763's own suite (plus mayhem/oracle/t_bounds.fth, written for test.sh)
+# on the unpatched build: the verbatim scripts give A = E on every assertion (the scripts' own
+# pass condition), and the stripped scripts give the same A lists (the X-rule assertions: the
+# offsets above) in two test-binary runs and in the graded and twin runs. The upstream
+# assertion counts match the tallies upstream's `make test` prints (129 + 58 + 9 + 1 + 67 + 94;
+# t_include prints none and has 2); t_bounds adds 23.
+O t_file ->
+X t_strings 25 SWAP STR1 DROP - SWAP
+X t_strings 26 SWAP STR2 DROP - SWAP
+X t_strings 27 SWAP STR3 DROP - SWAP
+X t_strings 30 SWAP STR2 DROP - SWAP
+X t_strings 86 ROT STR-SEARCH DROP - ROT ROT
+X t_strings 87 ROT STR-SEARCH DROP - ROT ROT
+X t_strings 89 ROT STR-SEARCH DROP - ROT ROT
+X t_strings 91 ROT STR-SEARCH DROP - ROT ROT
+X t_strings 94 ROT STR-SEARCH DROP - ROT ROT
+X t_strings 96 ROT STR-SEARCH DROP - ROT ROT
+S GW t_corex 177 178 46
+S G t_corex 275 316 92
+S G t_locals 47 53 8
+S G t_include 26 30 2
+D t_include 2 BADWORD  ? - unrecognized word!
+D t_include 2 INCLUDE error on line #4 ,
+T t_corex 1 G 3 3 2 1
+T t_corex 2 G 1 27
+T t_corex 3 G 1 987
+T t_corex 4 G 1 -1
+T t_corex 5 G 1 0
+T t_corex 6 G 1 -1
+T t_corex 7 G 9 88 77 5 20 37 5 20 19 17
+T t_corex 8 G 1 150
+T t_corex 9 G 1 -1
+T t_corex 10 G 1 0
+T t_corex 11 G 1 0
+T t_corex 12 G 1 10
+T t_corex 13 G 1 5
+T t_corex 14 G 1 3
+T t_corex 15 G 1 120
+T t_corex 16 G 1 53
+T t_corex 17 G 1 38
+T t_corex 18 G 1 101
+T t_corex 19 G 1 892
+T t_corex 20 G 1 941
+T t_corex 21 G 4 39 20 27 19
+T t_corex 22 G 2 120 1234
+T t_corex 23 G 1 8
+T t_corex 25 G 1 6
+T t_corex 26 G 1 0
+T t_corex 27 G 1 0
+T t_corex 28 G 1 0
+T t_corex 29 G 1 10
+T t_corex 30 G 1 0
+T t_corex 31 G 1 16
+T t_corex 32 G 3 0 0 -1
+T t_corex 33 G 2 55 33
+T t_corex 34 G 2 119 4
+T t_corex 35 G 5 12 10 11 12 13
+T t_corex 36 G 1 -1
+T t_corex 37 G 1 -1
+T t_corex 38 G 1 0
+T t_corex 39 G 3 15 2345 0
+T t_corex 40 G 6 10 11 12 13 14 15
+T t_corex 41 G 6 11 10 12 13 14 15
+T t_corex 42 G 6 12 10 11 13 14 15
+T t_corex 43 G 6 13 10 11 12 14 15
+T t_corex 44 G 6 14 10 11 12 13 15
+T t_corex 45 F 1 -1
+T t_corex 46 F 1 -1
+T t_corex 47 G 1 -1
+T t_corex 48 G 5 0 9 3 2 1
+T t_corex 49 G 4 0 8 2 1
+T t_corex 50 G 3 99 2 1
+T t_corex 51 G 6 -111 999 0 5 4 3
+T t_corex 52 G 1 5
+T t_corex 53 G 1 333
+T t_corex 54 G 1 1000
+T t_corex 55 G 2 100 19
+T t_corex 56 G 1 -1
+T t_corex 57 G 4 66 55 66 44
+T t_corex 58 G 1 -1
+T t_corex 59 G 1 -1
+T t_corex 60 G 1 -1
+T t_corex 61 G 1 0
+T t_corex 62 G 1 -1
+T t_corex 63 G 1 -1
+T t_corex 64 G 1 0
+T t_corex 65 G 1 -1
+T t_corex 66 G 1 0
+T t_corex 67 G 1 0
+T t_corex 68 G 1 -1
+T t_corex 69 G 1 0
+T t_corex 70 G 1 -1
+T t_corex 71 G 1 -1
+T t_corex 72 G 1 0
+T t_corex 73 G 1 -1
+T t_corex 74 G 0
+T t_corex 75 W 1 256
+T t_corex 76 W 1 256
+T t_corex 77 W 1 256
+T t_corex 78 W 1 256
+T t_corex 79 W 1 256
+T t_corex 80 W 1 1
+T t_corex 81 W 1 1
+T t_corex 82 W 1 1
+T t_corex 83 W 1 1
+T t_corex 84 W 1 2
+T t_corex 85 W 1 1
+T t_corex 86 W 1 1
+T t_corex 87 W 1 2
+T t_corex 88 W 1 1
+T t_corex 89 W 1 1
+T t_corex 90 W 1 1
+T t_corex 91 W 1 2
+T t_corex 92 W 1 1
+T t_corex 93 G 1 1289
+T t_corex 94 G 1 -1289
+T t_corex 95 G 1 4847
+T t_corex 96 G 1 -4847
+T t_corex 97 G 1 150
+T t_corex 98 G 1 -150
+T t_corex 99 G 1 122
+T t_corex 100 G 1 90
+T t_corex 101 G 1 -1
+T t_corex 102 G 1 1289
+T t_corex 103 G 1 -1289
+T t_corex 104 G 1 4847
+T t_corex 105 G 1 -4847
+T t_corex 106 G 1 150
+T t_corex 107 G 1 -150
+T t_corex 108 G 1 122
+T t_corex 109 G 1 90
+T t_corex 110 G 1 -1
+T t_corex 111 G 4 39 215 -11454 8327
+T t_corex 112 G 1 0
+T t_corex 113 G 2 -1 255
+T t_corex 114 G 2 -1 8
+T t_corex 115 G 1 -1
+T t_corex 116 G 1 -1
+T t_corex 117 G 1 0
+T t_corex 118 G 1 -1
+T t_corex 119 G 1 -1
+T t_corex 120 G 1 0
+T t_corex 121 G 1 0
+T t_corex 122 G 1 0
+T t_corex 123 G 1 -1
+T t_corex 124 G 1 17
+T t_corex 125 G 1 0
+T t_corex 126 G 1 8
+T t_corex 127 G 1 16
+T t_corex 128 G 1 77
+T t_corex 129 G 1 1234567
+T t_corex 130 G 1 99
+T t_strings 1 G 3 3 2 1
+T t_strings 2 G 2 5 0
+T t_strings 3 G 2 11 0
+T t_strings 4 G 2 0 0
+T t_strings 5 G 2 5 6
+T t_strings 6 G 1 8
+T t_strings 7 G 1 6
+T t_strings 8 G 1 32
+T t_strings 9 G 1 32
+T t_strings 10 G 1 32
+T t_strings 11 G 1 10
+T t_strings 12 G 1 5
+T t_strings 13 G 1 7
+T t_strings 14 G 1 8
+T t_strings 15 G 1 9
+T t_strings 16 G 1 9
+T t_strings 18 G 1 5
+T t_strings 19 G 1 6
+T t_strings 20 G 1 6
+T t_strings 21 G 1 7
+T t_strings 22 G 1 8
+T t_strings 23 G 1 10
+T t_strings 24 G 1 0
+T t_strings 25 G 1 -1
+T t_strings 26 G 1 1
+T t_strings 27 G 1 -1
+T t_strings 28 G 1 1
+T t_strings 29 G 1 -1
+T t_strings 30 G 1 0
+T t_strings 31 G 3 -1 12 0
+T t_strings 32 G 3 -1 8 4
+T t_strings 33 G 3 -1 4 8
+T t_strings 34 G 3 -1 12 0
+T t_strings 35 G 3 0 12 0
+T t_strings 36 G 3 0 12 0
+T t_strings 37 G 1 0
+T t_strings 38 G 0
+T t_strings 39 G 1 20
+T t_strings 40 G 1 7
+T t_strings 41 G 1 8
+T t_strings 42 G 1 27
+T t_strings 43 G 1 12
+T t_strings 44 G 1 10
+T t_strings 45 G 1 13
+T t_strings 46 G 1 10
+T t_strings 47 G 1 34
+T t_strings 48 G 1 13
+T t_strings 49 G 1 9
+T t_strings 50 G 1 11
+T t_strings 51 G 1 15
+T t_strings 52 G 1 48
+T t_strings 53 G 1 31
+T t_strings 54 G 1 97
+T t_strings 55 G 1 171
+T t_strings 56 G 1 120
+T t_strings 57 G 1 0
+T t_strings 58 G 1 34
+T t_strings 59 G 1 92
+T t_locals 1 G 1 333
+T t_locals 2 G 1 1000
+T t_locals 3 G 1 1035
+T t_locals 4 G 1 987
+T t_locals 5 G 1 -1
+T t_locals 6 G 1 567
+T t_locals 7 G 1 -1
+T t_locals 8 G 1 1234
+T t_locals 9 F 1 100
+T t_alloc 1 G 1 0
+T t_floats 1 G 3 3 2 1
+T t_floats 2 G 2 0 4
+T t_floats 3 G 2 0 835
+T t_floats 4 G 2 -1 -57
+T t_floats 5 G 1 7
+T t_floats 6 G 1 79
+T t_floats 7 G 1 0
+T t_floats 8 G 1 -1
+T t_floats 9 G 1 0
+T t_floats 10 G 1 -1
+T t_floats 11 G 1 0
+T t_floats 12 G 1 -1
+T t_floats 13 G 1 0
+T t_floats 14 G 1 -1
+T t_floats 15 G 1 0
+T t_floats 16 G 1 -1
+T t_floats 17 G 1 0
+T t_floats 18 G 1 -1
+T t_floats 19 G 1 -1
+T t_floats 20 G 1 -1
+T t_floats 21 G 1 -1
+T t_floats 22 G 1 -1
+T t_floats 23 G 1 -1
+T t_floats 24 G 1 -1
+T t_floats 25 G 1 -1
+T t_floats 26 G 1 -1
+T t_floats 27 G 1 -1
+T t_floats 28 G 1 -1
+T t_floats 29 G 1 -1
+T t_floats 30 G 1 -1
+T t_floats 31 G 1 -1
+T t_floats 32 G 1 -1
+T t_floats 33 G 1 -1
+T t_floats 34 G 1 -1
+T t_floats 35 G 1 -1
+T t_floats 36 G 1 -1
+T t_floats 37 G 1 -1
+T t_floats 38 G 1 -1
+T t_floats 39 G 1 -1
+T t_floats 40 G 1 -1
+T t_floats 41 G 1 -1
+T t_floats 42 G 1 -1
+T t_floats 43 G 1 -1
+T t_floats 44 G 1 -1
+T t_floats 45 G 1 -1
+T t_floats 46 G 1 -1
+T t_floats 47 G 1 -1
+T t_floats 48 G 1 -1
+T t_floats 49 G 1 -1
+T t_floats 50 G 1 -1
+T t_floats 51 G 1 -1
+T t_floats 52 G 1 -1
+T t_floats 53 G 1 -1
+T t_floats 54 G 1 -1
+T t_floats 55 G 1 -1
+T t_floats 56 G 1 -1
+T t_floats 57 G 1 -1
+T t_floats 58 G 1 0
+T t_floats 59 G 1 8
+T t_floats 60 G 1 16
+T t_floats 61 G 1 24
+T t_floats 62 G 1 6543
+T t_floats 63 G 1 -1
+T t_floats 64 G 1 98765
+T t_floats 65 G 1 -1
+T t_floats 66 G 1 -1
+T t_floats 67 G 1 0
+T t_file 1 F 1 0
+T t_file 2 F 1 0
+T t_file 3 F 1 0
+T t_file 4 F 1 0
+T t_file 5 F 1 0
+T t_file 6 F 1 0
+T t_file 7 F 3 0 0 0
+T t_file 8 F 3 6 0 -1
+T t_file 9 F 1 -1
+T t_file 10 F 1 0
+T t_file 11 F 1 0
+T t_file 12 F 3 0 0 0
+T t_file 13 F 3 0 0 -1
+T t_file 14 F 3 3 0 -1
+T t_file 15 F 1 -1
+T t_file 16 F 3 3 0 -1
+T t_file 17 F 1 -1
+T t_file 18 F 1 0
+T t_file 19 F 1 0
+T t_file 20 F 3 0 0 0
+T t_file 21 F 3 6 0 -1
+T t_file 22 F 1 -1
+T t_file 23 F 1 0
+T t_file 24 F 1 -1
+T t_file 25 F 1 -1
+T t_file 26 F 1 -1
+T t_file 27 F 1 0
+T t_file 28 F 1 0
+T t_file 29 F 3 0 0 7
+T t_file 30 F 1 0
+T t_file 31 F 1 0
+T t_file 32 F 3 0 0 10
+T t_file 33 F 1 0
+T t_file 34 F 3 0 -1 6
+T t_file 35 F 3 21 0 -1
+T t_file 36 F 1 -1
+T t_file 37 F 3 0 0 0
+T t_file 38 F 1 0
+T t_file 39 F 1 -1
+T t_file 40 F 1 0
+T t_file 41 F 1 0
+T t_file 42 F 1 0
+T t_file 43 F 3 0 -1 0
+T t_file 44 F 3 0 -1 0
+T t_file 45 F 3 0 0 0
+T t_file 46 F 1 0
+T t_file 47 F 1 0
+T t_file 48 F 2 0 0
+T t_file 49 F 3 0 0 50
+T t_file 50 F 1 0
+T t_file 51 F 2 0 29
+T t_file 52 F 1 -1
+T t_file 53 F 1 0
+T t_file 54 F 2 0 21
+T t_file 55 F 1 -1
+T t_file 56 F 1 -1
+T t_file 57 F 2 0 0
+T t_file 58 F 1 0
+T t_file 59 F 1 0
+T t_file 60 F 1 0
+T t_file 61 F 3 0 0 37
+T t_file 62 F 1 0
+T t_file 63 F 2 0 37
+T t_file 64 F 1 -1
+T t_file 65 F 1 0
+T t_file 66 F 1 0
+T t_file 67 F 3 0 0 500
+T t_file 68 F 1 0
+T t_file 69 F 2 0 100
+T t_file 70 F 1 -1
+T t_file 71 F 1 0
+T t_file 72 F 1 0
+T t_file 73 F 1 0
+T t_file 74 F 1 0
+T t_file 75 F 3 33 22 11
+T t_file 76 F 1 0
+T t_file 77 F 0
+T t_file 78 F 1 -1
+T t_file 79 F 1 0
+T t_file 80 F 1 -1
+T t_file 81 F 1 0
+T t_file 82 F 1 0
+T t_file 83 F 1 0
+T t_file 84 F 1 0
+T t_file 85 F 1 0
+T t_file 86 F 0
+T t_file 87 F 1 2
+T t_file 88 F 1 2
+T t_file 89 F 0
+T t_file 90 F 1 2
+T t_file 91 F 2 89 88
+T t_file 92 F 0
+T t_file 93 F 3 22222 0 11111
+T t_file 94 F 5 55555 44444 2345 0 0
+T t_include 1 G 16 123456716 123456715 123456714 123456713 123456712 123456711 123456710 123456709 123456708 123456707 123456706 123456705 123456704 123456703 123456702 123456701
+T t_include 2 F 2 -13 111
+T t_bounds 1 G 1 -1
+T t_bounds 2 G 1 0
+T t_bounds 3 G 1 1
+T t_bounds 4 G 1 -999
+T t_bounds 5 G 1 0
+T t_bounds 6 G 1 0
+T t_bounds 7 G 1 -1
+T t_bounds 8 G 1 -2
+T t_bounds 9 G 1 -1
+T t_bounds 10 G 1 -1
+T t_bounds 11 G 1 1
+T t_bounds 12 G 1 -1
+T t_bounds 13 G 1 -1
+T t_bounds 14 G 1 -1
+T t_bounds 15 G 1 -1
+T t_bounds 16 G 1 -1
+T t_bounds 17 G 1 2
+T t_bounds 18 G 1 -2
+T t_bounds 19 G 1 3
+T t_bounds 20 G 1 3
+T t_bounds 21 G 1 4
+T t_bounds 22 G 1 4
+T t_bounds 23 G 1 4
